@@ -33,7 +33,6 @@ public class UserController {
     @PostMapping("/login")
     public User loginUser(@RequestParam String email,
                           @RequestParam String password) {
-
         return userService.loginUser(email, password);
     }
 
@@ -53,14 +52,12 @@ public class UserController {
     @PutMapping("/{id}")
     public User updateUser(@PathVariable Long id,
                            @RequestBody User user) {
-
         return userService.updateUser(id, user);
     }
 
     // Delete User API
     @DeleteMapping("/{id}")
     public String deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return "User deleted successfully!";
+        return userService.deleteUser(id);
     }
 }

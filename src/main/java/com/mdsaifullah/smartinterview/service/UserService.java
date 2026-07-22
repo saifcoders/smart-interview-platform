@@ -62,7 +62,13 @@ public class UserService {
     }
 
     // Delete User
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public String deleteUser(Long id) {
+
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return "User Deleted Successfully";
+        }
+
+        return "User Not Found";
     }
 }
