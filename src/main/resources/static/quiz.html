@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Take Quiz - Smart Interview</title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+
+        nav {
+            background: #111827;
+            color: white;
+
+            padding: 18px 7%;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+
+        .back-btn {
+            background: #374151;
+            color: white;
+
+            border: none;
+
+            padding: 9px 16px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+        }
+
+
+        .container {
+            width: 80%;
+            max-width: 900px;
+
+            margin: 40px auto;
+        }
+
+
+        .quiz-header {
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 12px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+
+        .quiz-header h1 {
+            margin-bottom: 8px;
+        }
+
+
+        .quiz-header p {
+            color: #6b7280;
+        }
+
+
+        .question-card {
+            background: white;
+
+            padding: 25px;
+
+            margin-bottom: 20px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+
+        .question-number {
+            color: #2563eb;
+
+            font-weight: bold;
+
+            margin-bottom: 10px;
+        }
+
+
+        .question-title {
+            font-size: 19px;
+
+            font-weight: bold;
+
+            margin-bottom: 20px;
+        }
+
+
+        .option {
+            display: block;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            font-size: 16px;
+        }
+
+        .option:hover {
+            background: #f3f4f6;
+        }
+
+        .option.selected {
+            background: #eff6ff;
+            border-color: #2563eb;
+            font-weight: bold;
+        }
+
+        .option input {
+            margin-right: 12px;
+            transform: scale(1.1);
+        }
+
+        /* Nav Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .nav-btn {
+            background: #4b5563;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: #374151;
+        }
+
+        .nav-btn:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .submit-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background: #e5e7eb;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #2563eb;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .loading {
+            text-align: center;
+            color: #6b7280;
+            padding: 30px;
+        }
+
+        .error {
+            color: #dc2626;
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Smart Interview
+        </div>
+
+
+        <button
+            class="back-btn"
+            onclick="goDashboard()">
+
+            Dashboard
+
+        </button>
+
+    </nav>
+
+
+    <div class="container">
+
+
+        <div
+            id="quizHeader"
+            class="quiz-header">
+
+            <h1>
+                Loading Quiz...
+            </h1>
+
+            <p>
+                Please wait while questions are loading.
+            </p>
+
+        </div>
+
+
+        <div id="questionsContainer">
+
+            <p class="loading">
+                Loading questions...
+            </p>
+
+        </div>
+
+
+        <div
+            id="submitContainer"
+            class="submit-container"
+            style="display: none;">
+
+            <button
+                id="submitBtn"
+                class="submit-btn"
+                onclick="submitQuiz()">
+
+                Submit Quiz
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="resultContainer"
+            style="display: none;">
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+
+        // Get JWT Token
+        const token =
+            localStorage.getItem("jwtToken");
+
+
+        // Get Selected Quiz ID
+        const quizId =
+            localStorage.getItem("selectedQuizId");
+
+
+        // Get User ID from JWT Token
+        function getUserIdFromToken(token) {
+
+            try {
+
+                if (!token) {
+                    return null;
+                }
+
+
+                const parts =
+                    token.split(".");
+
+
+                if (parts.length !== 3) {
+
+                    return null;
+                }
+
+
+                const payload =
+                    JSON.parse(
+                        atob(parts[1])
+                    );
+
+
+                return payload.userId;
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to read User ID from JWT",
+                    error
+                );
+
+                return null;
+            }
+        }
+
+
+        // Actual logged-in user's ID
+        const userId =
+            getUserIdFromToken(token);
+
+
+        let questions = [];
+
+
+        // Check login
+        if (!token) {
+
+            window.location.href =
+                "/login.html";
+
+        }
+
+
+        // Check User ID
+        if (!userId) {
+
+            alert(
+                "User information not found. Please login again."
+            );
+
+            localStorage.removeItem("jwtToken");
+
+            window.location.href =
+                "/login.html";
+
+        }
+
+
+        // Check selected quiz
+        if (!quizId) {
+
+            alert(
+                "Please select a quiz first."
+            );
+
+            window.location.href =
+                "/dashboard.html";
+        }
+
+
+        // Load Quiz
+        async function loadQuiz() {
+
+            try {
+
+                const quizResponse =
+                    await fetch(
+                        `/api/quizzes/${quizId}`,
+                        {
+                            headers: {
+                                "Authorization": "Bearer " + token
+                            }
+                        }
+                    );
+
+
+                if (!quizResponse.ok) {
+                    if (quizResponse.status === 401 || quizResponse.status === 403) {
+                        localStorage.removeItem("jwtToken");
+                        window.location.href = "/login.html";
+                        return;
+                    }
+
+                    throw new Error(
+                        "Quiz not found"
+                    );
+                }
+
+
+                const quiz =
+                    await quizResponse.json();
+
+
+                document.getElementById(
+                    "quizHeader"
+                ).innerHTML = `
+
+                    <h1>
+                        ${quiz.title}
+                    </h1>
+
+                    <p>
+                        Answer all questions carefully
+                        and submit your quiz.
+                    </p>
+
+                `;
+
+
+                // Convert question IDs
+                // Example: "4,5,6,7,8"
+                // into [4,5,6,7,8]
+
+                const questionIds =
+                    quiz.questionIds
+                        ? quiz.questionIds
+                            .split(",")
+                            .map(
+                                id => id.trim()
+                            )
+                            .filter(
+                                id => id !== ""
+                            )
+                        : [];
+
+
+                if (
+                    questionIds.length === 0
+                ) {
+
+                    throw new Error(
+                        "No questions assigned to this quiz."
+                    );
+                }
+
+
+                // Load every question
+
+                const questionPromises =
+                    questionIds.map(
+                        id =>
+
+                            fetch(
+                                `/api/questions/${id}`,
+                                {
+                                    headers: {
+                                        "Authorization": "Bearer " + token
+                                    }
+                                }
+                            )
+                            .then(
+                                response => {
+
+                                    if (
+                                        !response.ok
+                                    ) {
+                                        if (response.status === 401 || response.status === 403) {
+                                            localStorage.removeItem("jwtToken");
+                                            window.location.href = "/login.html";
+                                            return;
+                                        }
+
+                                        throw new Error(
+                                            `Question ${id} not found`
+                                        );
+                                    }
+
+
+                                    return response.json();
+
+                                }
+                            )
+                    );
+
+
+                questions =
+                    await Promise.all(
+                        questionPromises
+                    );
+
+
+                displayQuestions();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                document.getElementById(
+                    "questionsContainer"
+                ).innerHTML = `
+
+                    <div class="error">
+
+                        Unable to load quiz.
+
+                        <br><br>
+
+                        ${error.message}
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        let currentQuestionIndex = 0;
+        const answersMap = {};
+
+        // Display Questions
+        function displayQuestions() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            if (questions.length === 0) {
+                container.innerHTML = "<p>No questions found in this quiz.</p>";
+                return;
+            }
+
+            // Progress Bar
+            const progressPercent = Math.round(((currentQuestionIndex + 1) / questions.length) * 100);
+            
+            let html = `
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+                </div>
+            `;
+
+            const question = questions[currentQuestionIndex];
+            const savedAnswer = answersMap[question.id] || "";
+
+            html += `
+                <div class="question-card">
+                    <div class="question-number" style="color: #2563eb; font-weight: bold; margin-bottom: 10px;">
+                        Question ${currentQuestionIndex + 1} of ${questions.length}
+                    </div>
+
+                    <div class="question-title" style="font-size: 19px; font-weight: bold; margin-bottom: 20px;">
+                        ${question.title}
+                    </div>
+
+                    <div id="optionsList">
+                        <label class="option ${savedAnswer === question.option1 ? 'selected' : ''}">
+                            <input
+                                type="radio"
+                                name="question-${question.id}"
+                                value="${question.option1}"
+                                ${savedAnswer === question.option1 ? 'checked' : ''}
+                                onchange="selectOption(this, ${question.id}, '${question.option1.replace(/'/g, "\\'")}')"
+                            >
+                            ${question.option1}
+                        </label>
+
+                        <label class="option ${savedAnswer === question.option2 ? 'selected' : ''}">
+                            <input
+                                type="radio"
+                                name="question-${question.id}"
+                                value="${question.option2}"
+                                ${savedAnswer === question.option2 ? 'checked' : ''}
+                                onchange="selectOption(this, ${question.id}, '${question.option2.replace(/'/g, "\\'")}')"
+                            >
+                            ${question.option2}
+                        </label>
+
+                        <label class="option ${savedAnswer === question.option3 ? 'selected' : ''}">
+                            <input
+                                type="radio"
+                                name="question-${question.id}"
+                                value="${question.option3}"
+                                ${savedAnswer === question.option3 ? 'checked' : ''}
+                                onchange="selectOption(this, ${question.id}, '${question.option3.replace(/'/g, "\\'")}')"
+                            >
+                            ${question.option3}
+                        </label>
+
+                        <label class="option ${savedAnswer === question.option4 ? 'selected' : ''}">
+                            <input
+                                type="radio"
+                                name="question-${question.id}"
+                                value="${question.option4}"
+                                ${savedAnswer === question.option4 ? 'checked' : ''}
+                                onchange="selectOption(this, ${question.id}, '${question.option4.replace(/'/g, "\\'")}')"
+                            >
+                            ${question.option4}
+                        </label>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button type="button" class="nav-btn" onclick="prevQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>
+                            Previous
+                        </button>
+                        
+                        ${currentQuestionIndex < questions.length - 1 ? `
+                            <button type="button" class="nav-btn" onclick="nextQuestion()">
+                                Next
+                            </button>
+                        ` : `
+                            <button id="submitBtn" type="button" class="submit-btn" onclick="submitQuiz()">
+                                Submit Quiz
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function selectOption(input, questionId, value) {
+            answersMap[questionId] = value;
+            const labels = document.querySelectorAll("#optionsList label");
+            labels.forEach(label => label.classList.remove("selected"));
+            input.parentElement.classList.add("selected");
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestions();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestions();
+            }
+        }
+
+        // Submit Quiz
+        async function submitQuiz() {
+            const submitButton = document.getElementById("submitBtn");
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerText = "Submitting...";
+            }
+
+            try {
+                const resultResponse = await fetch("/api/results/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({
+                        userId: Number(userId),
+                        quizId: Number(quizId),
+                        answers: answersMap
+                    })
+                });
+
+                if (!resultResponse.ok) {
+                    if (resultResponse.status === 401 || resultResponse.status === 403) {
+                        localStorage.removeItem("jwtToken");
+                        window.location.href = "/login.html";
+                        return;
+                    }
+                    throw new Error("Could not save result");
+                }
+
+                const savedResult = await resultResponse.json();
+                
+                // Save to sessionStorage for result.html display
+                sessionStorage.setItem("lastQuizResult", JSON.stringify(savedResult));
+                
+                // Redirect to result page
+                window.location.href = "/result.html";
+
+            } catch (error) {
+                console.error(error);
+                alert("Quiz completed, but result could not be saved.");
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerText = "Submit Quiz";
+                }
+            }
+        }
+
+        // Go to Dashboard
+        function goDashboard() {
+            window.location.href = "/dashboard.html";
+        }
+
+        // Start Quiz
+        loadQuiz();
+
+    </script>
+
+
+</body>
+
+</html>

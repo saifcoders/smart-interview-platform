@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - Smart Interview</title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+
+        nav {
+            background: #111827;
+            color: white;
+
+            padding: 18px 7%;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+
+        .email {
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+
+        .admin-btn {
+            background: #7c3aed;
+            color: white;
+
+            border: none;
+
+            padding: 9px 16px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+        }
+
+
+        .admin-btn:hover {
+            background: #6d28d9;
+        }
+
+
+        .logout {
+            background: #ef4444;
+            color: white;
+
+            border: none;
+
+            padding: 9px 16px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+        }
+
+
+        .container {
+            width: 86%;
+            max-width: 1200px;
+
+            margin: 40px auto;
+        }
+
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+
+        .welcome h1 {
+            font-size: 32px;
+
+            margin-bottom: 8px;
+        }
+
+
+        .welcome p {
+            color: #6b7280;
+        }
+
+
+        .section-title {
+            margin-bottom: 20px;
+
+            font-size: 24px;
+        }
+
+
+        .quiz-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(280px, 1fr)
+                );
+
+            gap: 22px;
+        }
+
+
+        .quiz-card {
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0, 0, 0, 0.08);
+        }
+
+
+        .quiz-card h3 {
+            margin-bottom: 12px;
+        }
+
+
+        .quiz-card p {
+            color: #6b7280;
+
+            margin-bottom: 20px;
+        }
+
+
+        .start-btn {
+            background: #2563eb;
+
+            color: white;
+
+            border: none;
+
+            padding: 11px 18px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 15px;
+        }
+
+
+        .start-btn:hover {
+            background: #1d4ed8;
+        }
+
+
+        .results {
+            margin-top: 50px;
+        }
+
+
+        .result-card {
+            background: white;
+
+            padding: 20px;
+
+            margin-bottom: 12px;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0, 0, 0, 0.06);
+        }
+
+
+        .loading {
+            color: #6b7280;
+        }
+
+
+        .error {
+            color: #dc2626;
+        }
+
+
+        @media (max-width: 600px) {
+
+            nav {
+                padding: 15px 5%;
+            }
+
+
+            .logo {
+                font-size: 20px;
+            }
+
+
+            .nav-right {
+                gap: 6px;
+            }
+
+
+            .email {
+                display: none;
+            }
+
+
+            .container {
+                width: 90%;
+
+                margin: 25px auto;
+            }
+
+
+            .welcome h1 {
+                font-size: 26px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Smart Interview
+        </div>
+
+
+        <div class="nav-right">
+
+            <span
+                class="email"
+                id="userEmail">
+            </span>
+
+
+            <!-- Admin Panel button -->
+
+            <button
+                id="adminButton"
+                class="admin-btn"
+                style="display: none;"
+                onclick="openAdminPanel()">
+
+                Admin Panel
+
+            </button>
+
+
+            <button
+                class="admin-btn"
+                style="background: #10b981; color: white;"
+                onclick="window.location.href='/ai-interview.html'">
+
+                AI Practice
+
+            </button>
+
+
+            <button
+                class="logout"
+                onclick="logout()">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <div class="container">
+
+
+        <div class="welcome">
+
+            <h1 id="welcomeUser">
+                Welcome to Smart Interview 👋
+            </h1>
+
+
+            <p>
+                Practice technical interview questions
+                and improve your performance.
+            </p>
+
+        </div>
+
+        <!-- Progress Analytics Section -->
+        <div id="analyticsSection" style="margin-bottom: 40px; display: none;">
+            <h2 class="section-title">Your Progress Analytics</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Quizzes Attempted</div>
+                    <div id="statQuizzesAttempted" style="font-size: 28px; font-weight: bold; color: #2563eb; margin-top: 5px;">0</div>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Total Attempts</div>
+                    <div id="statTotalAttempts" style="font-size: 28px; font-weight: bold; color: #2563eb; margin-top: 5px;">0</div>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Average Score</div>
+                    <div id="statAverageScore" style="font-size: 28px; font-weight: bold; color: #10b981; margin-top: 5px;">0%</div>
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                    <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Best Score</div>
+                    <div id="statBestScore" style="font-size: 28px; font-weight: bold; color: #7c3aed; margin-top: 5px;">0%</div>
+                </div>
+            </div>
+        </div>
+
+
+        <h2 class="section-title">
+            Available Quizzes
+        </h2>
+
+
+        <div
+            id="quizContainer"
+            class="quiz-grid">
+
+            <p class="loading">
+                Loading quizzes...
+            </p>
+
+        </div>
+
+
+        <div class="results">
+
+
+            <h2 class="section-title">
+                Your Previous Results
+            </h2>
+
+
+            <div id="resultContainer">
+
+                <p class="loading">
+                    Loading results...
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+
+        // ============================
+        // JWT TOKEN
+        // ============================
+
+        const token =
+            localStorage.getItem(
+                "jwtToken"
+            );
+
+
+        const userEmail =
+            localStorage.getItem(
+                "userEmail"
+            );
+
+
+        // ============================
+        // GET USER DATA FROM JWT
+        // ============================
+
+        function getUserDataFromToken(token) {
+
+            try {
+
+                if (!token) {
+                    return null;
+                }
+
+
+                const parts =
+                    token.split(".");
+
+
+                if (parts.length !== 3) {
+                    return null;
+                }
+
+
+                const payload =
+                    JSON.parse(
+                        atob(parts[1])
+                    );
+
+
+                return payload;
+
+
+            } catch (error) {
+
+                console.error(
+                    "Invalid JWT token",
+                    error
+                );
+
+                return null;
+
+            }
+
+        }
+
+
+        const userData =
+            getUserDataFromToken(token);
+
+
+        // Actual logged-in User ID
+
+        const userId =
+            userData
+                ? userData.userId
+                : null;
+
+
+        // Actual logged-in Role
+
+        const userRole =
+            userData
+                ? userData.role
+                : null;
+
+
+        // ============================
+        // LOGIN CHECK
+        // ============================
+
+        if (!token || !userId) {
+
+            localStorage.removeItem(
+                "jwtToken"
+            );
+
+            localStorage.removeItem(
+                "userEmail"
+            );
+
+            window.location.href =
+                "/login.html";
+
+        }
+
+
+        // ============================
+        // SHOW EMAIL
+        // ============================
+
+        // ============================
+        // SHOW USER PROFILE & EMAIL
+        // ============================
+        document.getElementById("userEmail").innerText = userEmail || "User";
+
+        async function loadProfile() {
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById("welcomeUser").innerText = `Welcome, ${user.name} 👋`;
+                }
+            } catch (e) {
+                console.error("Failed to load user profile", e);
+            }
+        }
+        if (userId) {
+            loadProfile();
+        }
+
+
+        // ============================
+        // ADMIN BUTTON
+        // ============================
+        if (
+            userRole &&
+            userRole.toUpperCase() === "ADMIN"
+        ) {
+            document.getElementById("adminButton").style.display = "block";
+        }
+
+        const quizNamesMap = {};
+
+        // ============================
+        // LOAD QUIZZES
+        // ============================
+        async function loadQuizzes() {
+            const quizContainer = document.getElementById("quizContainer");
+
+            try {
+                const response = await fetch("/api/quizzes", {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        logout();
+                        return;
+                    }
+                    throw new Error("Unable to load quizzes");
+                }
+
+                const quizzes = await response.json();
+
+                if (quizzes.length === 0) {
+                    quizContainer.innerHTML = "<p>No quizzes available.</p>";
+                    return;
+                }
+
+                quizContainer.innerHTML = "";
+
+                quizzes.forEach(function(quiz) {
+                    // Save to names map
+                    quizNamesMap[quiz.id] = quiz.title;
+
+                    // Calculate actual number of questions
+                    const questionCount = quiz.questionIds
+                        ? quiz.questionIds.split(",").filter(id => id.trim() !== "").length
+                        : 0;
+
+                    const card = document.createElement("div");
+                    card.className = "quiz-card";
+
+                    card.innerHTML = `
+                        <h3>
+                            ${quiz.title}
+                        </h3>
+
+                        <p style="margin-bottom: 20px; color: #6b7280; font-size: 14px;">
+                            Questions: <strong>${questionCount}</strong>
+                        </p>
+
+                        <button
+                            class="start-btn"
+                            onclick="startQuiz(${quiz.id})"
+                            style="background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold;"
+                        >
+                            Start Practice
+                        </button>
+                    `;
+
+                    quizContainer.appendChild(card);
+                });
+
+                // Load results after quizzes are loaded to ensure names map is populated
+                loadResults();
+
+            } catch (error) {
+                console.error(error);
+                quizContainer.innerHTML = `<p class="error">Unable to load quizzes.</p>`;
+            }
+        }
+
+
+        // ============================
+        // LOAD USER RESULTS & ANALYTICS
+        // ============================
+        async function loadResults() {
+            const resultContainer = document.getElementById("resultContainer");
+
+            try {
+                const response = await fetch(`/api/results/user/${userId}`, {
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        logout();
+                        return;
+                    }
+                    throw new Error("Unable to load results");
+                }
+
+                const results = await response.json();
+
+                // Sort by ID descending (newest attempts first)
+                results.sort((a, b) => b.id - a.id);
+
+                // Render basic analytics
+                const totalAttempts = results.length;
+                if (totalAttempts > 0) {
+                    document.getElementById("analyticsSection").style.display = "block";
+                    
+                    const uniqueQuizzes = new Set(results.map(r => r.quizId));
+                    const totalQuizzesAttempted = uniqueQuizzes.size;
+                    
+                    let totalPercent = 0;
+                    let bestPercent = 0;
+                    
+                    results.forEach(r => {
+                        const pct = r.totalQuestions > 0 ? (r.score / r.totalQuestions) * 100 : 0;
+                        totalPercent += pct;
+                        if (pct > bestPercent) {
+                            bestPercent = pct;
+                        }
+                    });
+                    
+                    const avgPercent = Math.round(totalPercent / totalAttempts);
+                    
+                    document.getElementById("statQuizzesAttempted").innerText = totalQuizzesAttempted;
+                    document.getElementById("statTotalAttempts").innerText = totalAttempts;
+                    document.getElementById("statAverageScore").innerText = avgPercent + "%";
+                    document.getElementById("statBestScore").innerText = Math.round(bestPercent) + "%";
+                } else {
+                    document.getElementById("analyticsSection").style.display = "block";
+                    document.getElementById("analyticsSection").innerHTML = `
+                        <h2 class="section-title">Your Progress Analytics</h2>
+                        <p style="color: #6b7280; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center;">
+                            No quiz attempts yet.
+                        </p>
+                    `;
+                }
+
+                // Render previous results cards
+                if (results.length === 0) {
+                    resultContainer.innerHTML = "<p>No quiz results yet.</p>";
+                    return;
+                }
+
+                resultContainer.innerHTML = "";
+
+                results.forEach(function(result) {
+                    const percentage = result.totalQuestions > 0
+                        ? Math.round((result.score / result.totalQuestions) * 100)
+                        : 0;
+
+                    const quizName = quizNamesMap[result.quizId] || `Quiz #${result.quizId}`;
+
+                    const card = document.createElement("div");
+                    card.className = "result-card";
+                    card.style.background = "white";
+                    card.style.padding = "20px";
+                    card.style.marginBottom = "15px";
+                    card.style.borderRadius = "10px";
+                    card.style.boxShadow = "0 3px 12px rgba(0, 0, 0, 0.06)";
+
+                    card.innerHTML = `
+                        <strong style="font-size: 16px; color: #111827; display: block; margin-bottom: 8px;">
+                            ${quizName}
+                        </strong>
+                        <div style="display: flex; gap: 20px; color: #4b5563; font-size: 14px;">
+                            <span>Score: <strong>${result.score} / ${result.totalQuestions}</strong></span>
+                            <span>Percentage: <strong>${percentage}%</strong></span>
+                        </div>
+                    `;
+
+                    resultContainer.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error(error);
+                resultContainer.innerHTML = `<p class="error">Unable to load results.</p>`;
+            }
+        }
+
+
+        // ============================
+        // START QUIZ
+        // ============================
+        function startQuiz(quizId) {
+            localStorage.setItem("selectedQuizId", quizId);
+            window.location.href = "/quiz.html";
+        }
+
+
+        // ============================
+        // OPEN ADMIN PANEL
+        // ============================
+        function openAdminPanel() {
+            window.location.href = "/admin.html";
+        }
+
+
+        // ============================
+        // LOGOUT
+        // ============================
+        function logout() {
+            localStorage.removeItem("jwtToken");
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("selectedQuizId");
+            window.location.href = "/login.html";
+        }
+
+
+        // ============================
+        // START
+        // ============================
+        loadQuizzes();
+
+    </script>
+
+
+</body>
+
+</html>
