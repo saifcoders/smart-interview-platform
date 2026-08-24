@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Smart Interview</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f5f7fb;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 400px;
+            background: white;
+
+            padding: 40px;
+
+            border-radius: 15px;
+
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            color: #111827;
+
+            font-size: 28px;
+            font-weight: bold;
+
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+
+            font-weight: bold;
+            color: #374151;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 13px;
+
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+        }
+
+        .login-btn {
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+            border-radius: 7px;
+
+            background: #2563eb;
+            color: white;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .login-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 18px;
+
+            text-align: center;
+
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .back {
+            display: block;
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="logo">
+            Smart Interview
+        </div>
+
+        <p class="subtitle">
+            Login to continue your interview preparation
+        </p>
+
+
+        <form id="loginForm">
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="login-btn"
+                id="loginButton">
+
+                Login
+
+            </button>
+
+        </form>
+
+
+        <div
+            class="message"
+            id="message">
+        </div>
+
+
+        <p style="text-align: center; margin-top: 15px; font-size: 14px; color: #6b7280;">
+            Don't have an account? <a href="/register.html" style="color: #2563eb; text-decoration: none; font-weight: bold;">Register</a>
+        </p>
+
+
+        <a
+            href="/index.html"
+            class="back">
+
+            ← Back to Home
+
+        </a>
+
+    </div>
+
+
+    <script>
+
+        const loginForm = document.getElementById("loginForm");
+
+        const loginButton =
+            document.getElementById("loginButton");
+
+        const message =
+            document.getElementById("message");
+
+
+        loginForm.addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const password =
+                document.getElementById("password").value;
+
+
+            loginButton.disabled = true;
+
+            loginButton.innerText = "Logging in...";
+
+            message.innerText = "";
+
+
+            try {
+
+                const response = await fetch(
+                    `/api/users/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+                    {
+                        method: "POST"
+                    }
+                );
+
+
+                const result = await response.text();
+
+
+                if (response.ok && result !== "Invalid Email or Password") {
+
+                    // Save JWT token
+                    localStorage.setItem("jwtToken", result);
+
+                    localStorage.setItem("userEmail", email);
+
+
+                    message.style.color = "green";
+
+                    message.innerText =
+                        "Login successful! Redirecting...";
+
+
+                    setTimeout(function() {
+
+                        window.location.href =
+                            "/dashboard.html";
+
+                    }, 1000);
+
+                } else {
+
+                    message.style.color = "red";
+
+                    message.innerText =
+                        "Invalid Email or Password";
+
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.style.color = "red";
+
+                message.innerText =
+                    "Unable to connect to server.";
+
+            }
+
+
+            loginButton.disabled = false;
+
+            loginButton.innerText = "Login";
+
+        });
+
+    </script>
+
+</body>
+
+</html>

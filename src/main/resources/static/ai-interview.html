@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mock Interview - Smart Interview</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl font-bold tracking-tight bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">Smart Interview</span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-500/20 text-violet-300 border border-violet-500/30">AI Practice</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="userEmailDisplay" class="text-sm text-slate-300 font-medium"></span>
+            <button onclick="goBack()" class="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-colors border border-slate-700">
+                Dashboard
+            </button>
+            <button onclick="logout()" class="px-4 py-2 text-sm font-medium bg-rose-600 hover:bg-rose-500 text-white rounded-lg transition-colors">
+                Logout
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 flex flex-col md:flex-row gap-6">
+
+        <!-- Left Column: Session Config and Active Interview -->
+        <section class="flex-1 flex flex-col gap-6">
+
+            <!-- Category / Setup Selection Card -->
+            <div id="setupCard" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+                <h2 class="text-xl font-bold text-slate-800 mb-2">Configure Mock Interview</h2>
+                <p class="text-sm text-slate-500 mb-6">Select a category below to start an interactive, turn-based interview graded instantly by Gemini.</p>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                    <button onclick="selectCategory(this, 'Java')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        ☕ Java
+                    </button>
+                    <button onclick="selectCategory(this, 'Python')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        🐍 Python
+                    </button>
+                    <button onclick="selectCategory(this, 'C++')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        ⚙️ C++
+                    </button>
+                    <button onclick="selectCategory(this, 'Data Structures & Algorithms')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        📊 DSA
+                    </button>
+                    <button onclick="selectCategory(this, 'Database / SQL')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        🗄️ Database / SQL
+                    </button>
+                    <button onclick="selectCategory(this, 'Operating Systems')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        💻 Operating Systems
+                    </button>
+                    <button onclick="selectCategory(this, 'Computer Networks')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        🌐 Networks
+                    </button>
+                    <button onclick="selectCategory(this, 'HR / Behavioral')" class="category-btn py-3 px-4 rounded-xl border border-slate-200 text-left text-sm font-semibold text-slate-700 hover:border-violet-500 hover:bg-violet-50/30 transition-all duration-200">
+                        🤝 HR / Behavioral
+                    </button>
+                </div>
+
+                <div class="flex justify-between items-center border-t border-slate-100 pt-4">
+                    <span class="text-xs text-slate-400">💡 Daily limit: 3 mock interview reports.</span>
+                    <button onclick="startSession()" id="startBtn" class="px-6 py-3 font-semibold text-white bg-violet-600 hover:bg-violet-500 active:bg-violet-700 rounded-xl transition-all shadow-sm hover:shadow shadow-violet-500/20">
+                        Start Interview
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Practice Question Pane -->
+            <div id="practiceCard" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col gap-6">
+                <!-- Question Header -->
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <div>
+                        <span id="activeCategoryBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600">Java</span>
+                        <h2 class="text-lg font-bold text-slate-800 mt-2">Active Session Question</h2>
+                    </div>
+                    <span id="questionCounter" class="text-sm font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/60">Question 1 / 5</span>
+                </div>
+
+                <!-- AI Generated Question -->
+                <div class="bg-violet-50/30 border border-violet-100 p-5 rounded-xl">
+                    <p class="text-xs font-bold text-violet-600 uppercase tracking-wider mb-2">Interviewer Question:</p>
+                    <p id="questionText" class="text-slate-800 font-medium text-base leading-relaxed"></p>
+                </div>
+
+                <!-- Answer Form -->
+                <div class="flex flex-col gap-2">
+                    <label for="userAnswerText" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Response:</label>
+                    <textarea id="userAnswerText" oninput="updateCharCount()" rows="6" class="w-full rounded-xl border border-slate-200 p-4 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none leading-relaxed transition-all resize-none" placeholder="Explain your answer clearly and technically here..."></textarea>
+                    <div class="flex justify-between text-xs text-slate-400 px-1 mt-1">
+                        <span>Min. 10 characters | Max. 1000 characters</span>
+                        <span id="charCount">0 / 1000 characters</span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex justify-end gap-3 pt-2">
+                    <button onclick="finishSessionEarly()" id="finishEarlyBtn" class="px-5 py-3 font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+                        Finish Early
+                    </button>
+                    <button onclick="submitAnswer()" id="submitAnswerBtn" class="px-6 py-3 font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-xl transition-colors shadow-sm shadow-violet-500/20">
+                        Submit Answer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Answer Feedback displaying instantly -->
+            <div id="feedbackCard" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+                <h3 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 flex justify-between items-center">
+                    <span>AI Grading Response</span>
+                    <span id="gradingScore" class="text-2xl font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">8/10</span>
+                </h3>
+
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">👍 Key Strengths</h4>
+                        <p id="feedStrengths" class="text-sm text-slate-600 leading-relaxed"></p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">⚠️ Gaps / Weaknesses</h4>
+                        <p id="feedWeaknesses" class="text-sm text-slate-600 leading-relaxed"></p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">💡 Omitted Details</h4>
+                        <p id="feedMissing" class="text-sm text-slate-600 leading-relaxed"></p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-violet-600 uppercase tracking-wider mb-1">🛠️ Suggested Improvements</h4>
+                        <p id="feedSuggestions" class="text-sm text-slate-600 leading-relaxed"></p>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-4 rounded-xl mt-2">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">🌟 Ideal Answer Summary</h4>
+                        <p id="feedIdeal" class="text-sm text-slate-700 italic leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 border-t border-slate-100 pt-5 mt-6">
+                    <button onclick="requestNextQuestion()" id="nextBtn" class="px-6 py-3 font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors">
+                        Next Question
+                    </button>
+                    <button onclick="finishSession()" id="finishBtn" class="px-6 py-3 font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-colors">
+                        Complete Session
+                    </button>
+                </div>
+            </div>
+
+            <!-- Final Evaluation Summary Report Card -->
+            <div id="reportCard" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+                <div class="text-center py-6 border-b border-slate-100">
+                    <div id="ratingBadge" class="w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 font-extrabold text-2xl flex items-center justify-center mx-auto mb-4 border border-violet-100">
+                        8.5
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-800">Session Evaluation Report</h2>
+                    <p id="reportCategory" class="text-sm text-slate-400 mt-1">Java Mock Interview | Complete</p>
+                </div>
+
+                <div class="py-6">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Overall Interview Feedback:</h3>
+                    <p id="overallFeedback" class="text-slate-700 bg-slate-50/50 border border-slate-200/40 p-4 rounded-xl leading-relaxed text-sm"></p>
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Turn-by-Turn Response History</h3>
+                <div id="qnaHistory" class="space-y-4">
+                    <!-- Dynamic QnAs will render here -->
+                </div>
+
+                <div class="flex justify-end border-t border-slate-100 pt-6 mt-8">
+                    <button onclick="resetSetup()" class="px-6 py-3 font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-xl transition-colors">
+                        Practice Another Category
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Navigation Sidebar History -->
+        <aside class="w-full md:w-80 flex flex-col gap-6">
+            <!-- Global Info Card -->
+            <div class="bg-slate-900 rounded-2xl text-white p-6 shadow-sm">
+                <h3 class="font-bold text-base mb-1">AI Practice Engine</h3>
+                <p class="text-xs text-slate-400 mb-4">Practice realistic questions tailored dynamically by Gemini based on previous answers.</p>
+                <div class="space-y-3 text-xs">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Target Session Length</span>
+                        <span class="font-bold text-slate-200">5 Questions</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Instant Grading</span>
+                        <span class="font-bold text-emerald-400">Instant (0-10)</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Response Boundaries</span>
+                        <span class="font-bold text-slate-200">10 - 1000 Chars</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Scrollbox Panel -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex-1 flex flex-col min-h-[350px]">
+                <h3 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Your Practice History</h3>
+                <div id="historyList" class="flex-1 custom-scrollbar overflow-y-auto space-y-3 pr-1 text-sm text-slate-500">
+                    <!-- History items render here -->
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Error/Notice Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-6 left-6 max-w-sm w-full bg-slate-900 text-slate-100 px-5 py-4 rounded-xl shadow-xl flex items-center gap-3 border border-slate-800 transition-all duration-300 transform translate-y-10 opacity-0 z-50">
+        <div id="toastIcon" class="w-5 h-5 flex items-center justify-center rounded-full text-xs">⚠️</div>
+        <p id="toastMessage" class="text-xs font-semibold leading-relaxed"></p>
+    </div>
+
+    <!-- Script Block -->
+    <script>
+        const token = localStorage.getItem("jwtToken");
+        if (!token) {
+            window.location.href = "/login.html";
+        }
+
+        const email = localStorage.getItem("userEmail") || "User";
+        document.getElementById("userEmailDisplay").innerText = email;
+
+        let selectedCategory = "";
+        let currentSessionId = null;
+        let questionNumber = 1;
+
+        // Display alerts
+        function showNotice(msg, isError = true) {
+            const toast = document.getElementById("toast");
+            const icon = document.getElementById("toastIcon");
+            const message = document.getElementById("toastMessage");
+
+            message.innerText = msg;
+            if (isError) {
+                icon.innerText = "❌";
+                icon.className = "w-5 h-5 flex items-center justify-center bg-rose-500 text-white rounded-full text-xs shrink-0";
+            } else {
+                icon.innerText = "✅";
+                icon.className = "w-5 h-5 flex items-center justify-center bg-emerald-500 text-white rounded-full text-xs shrink-0";
+            }
+
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.style.transform = "translateY(0)";
+                toast.style.opacity = "1";
+            }, 50);
+
+            setTimeout(() => {
+                toast.style.transform = "translateY(40px)";
+                toast.style.opacity = "0";
+                setTimeout(() => toast.classList.add("hidden"), 300);
+            }, 4500);
+        }
+
+        // Return to dashboard
+        function goBack() {
+            window.location.href = "/dashboard.html";
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem("jwtToken");
+            localStorage.removeItem("userEmail");
+            window.location.href = "/login.html";
+        }
+
+        // Select Category Button click
+        function selectCategory(btn, cat) {
+            document.querySelectorAll(".category-btn").forEach(b => {
+                b.classList.remove("border-violet-600", "bg-violet-50/50", "text-violet-700");
+                b.classList.add("border-slate-200", "text-slate-700");
+            });
+            btn.classList.remove("border-slate-200", "text-slate-700");
+            btn.classList.add("border-violet-600", "bg-violet-50/50", "text-violet-700");
+            selectedCategory = cat;
+        }
+
+        // Character count textarea
+        function updateCharCount() {
+            const ta = document.getElementById("userAnswerText");
+            document.getElementById("charCount").innerText = `${ta.value.length} / 1000 characters`;
+        }
+
+        // Start session API call
+        async function startSession() {
+            if (!selectedCategory) {
+                showNotice("Please select an interview category first.");
+                return;
+            }
+
+            const startBtn = document.getElementById("startBtn");
+            startBtn.disabled = true;
+            startBtn.innerText = "Generating Question...";
+
+            try {
+                const response = await fetch(`/api/interviews/start?category=${encodeURIComponent(selectedCategory)}`, {
+                    method: "POST",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!response.ok) {
+                    const errorMsg = await response.text();
+                    if (response.status === 429 || response.status === 400) {
+                        showNotice(JSON.parse(errorMsg).message || "Rate limit reached.");
+                    } else {
+                        showNotice("Could not start interview.");
+                    }
+                    return;
+                }
+
+                const session = await response.json();
+                currentSessionId = session.id;
+                questionNumber = 1;
+
+                // Setup Active Question Pane
+                document.getElementById("activeCategoryBadge").innerText = selectedCategory;
+                document.getElementById("questionCounter").innerText = `Question 1 / 5`;
+                document.getElementById("questionText").innerText = session.answers[0].questionText;
+                document.getElementById("userAnswerText").value = "";
+                document.getElementById("charCount").innerText = "0 / 1000 characters";
+
+                // Toggle visibility
+                document.getElementById("setupCard").classList.add("hidden");
+                document.getElementById("practiceCard").classList.remove("hidden");
+                document.getElementById("feedbackCard").classList.add("hidden");
+                document.getElementById("reportCard").classList.add("hidden");
+
+                showNotice("Session started successfully!", false);
+
+            } catch (err) {
+                console.error(err);
+                showNotice("Downtime/Network error starting interview.");
+            } finally {
+                startBtn.disabled = false;
+                startBtn.innerText = "Start Interview";
+            }
+        }
+
+        // Submit answer
+        async function submitAnswer() {
+            const answer = document.getElementById("userAnswerText").value.trim();
+            if (answer.length < 10) {
+                showNotice("Answer is too short. Write at least 10 characters.");
+                return;
+            }
+            if (answer.length > 1000) {
+                showNotice("Answer exceeds 1000 characters.");
+                return;
+            }
+
+            const submitBtn = document.getElementById("submitAnswerBtn");
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Evaluating response via AI...";
+
+            try {
+                const response = await fetch(`/api/interviews/${currentSessionId}/submit`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ userAnswer: answer })
+                });
+
+                if (!response.ok) {
+                    const errorMsg = await response.text();
+                    showNotice(JSON.parse(errorMsg).message || "Answer submission failed.");
+                    return;
+                }
+
+                const feedback = await response.json();
+
+                // Fill feedback card
+                document.getElementById("gradingScore").innerText = `${feedback.score}/10`;
+                document.getElementById("feedStrengths").innerText = feedback.strengths || "N/A";
+                document.getElementById("feedWeaknesses").innerText = feedback.weaknesses || "N/A";
+                document.getElementById("feedMissing").innerText = feedback.missingPoints || "N/A";
+                document.getElementById("feedSuggestions").innerText = feedback.improvementSuggestions || "N/A";
+                document.getElementById("feedIdeal").innerText = feedback.idealAnswerSummary || "N/A";
+
+                // Toggle Next/Complete buttons
+                if (questionNumber >= 5) {
+                    document.getElementById("nextBtn").classList.add("hidden");
+                    document.getElementById("finishBtn").classList.remove("hidden");
+                } else {
+                    document.getElementById("nextBtn").classList.remove("hidden");
+                    document.getElementById("finishBtn").classList.add("hidden");
+                }
+
+                document.getElementById("feedbackCard").classList.remove("hidden");
+                document.getElementById("practiceCard").classList.add("hidden");
+
+                showNotice("AI response received!", false);
+
+            } catch (err) {
+                console.error(err);
+                showNotice("Network timed out or Gemini API failed. Please try again.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Answer";
+            }
+        }
+
+        // Request next question
+        async function requestNextQuestion() {
+            const nextBtn = document.getElementById("nextBtn");
+            nextBtn.disabled = true;
+            nextBtn.innerText = "Generating next question...";
+
+            try {
+                const response = await fetch(`/api/interviews/${currentSessionId}/next`, {
+                    method: "POST",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!response.ok) {
+                    const errorMsg = await response.text();
+                    showNotice(JSON.parse(errorMsg).message || "Failed to load next question.");
+                    return;
+                }
+
+                const nextAnswerCard = await response.json();
+                questionNumber++;
+
+                // Load next question pane
+                document.getElementById("questionCounter").innerText = `Question ${questionNumber} / 5`;
+                document.getElementById("questionText").innerText = nextAnswerCard.questionText;
+                document.getElementById("userAnswerText").value = "";
+                document.getElementById("charCount").innerText = "0 / 1000 characters";
+
+                document.getElementById("practiceCard").classList.remove("hidden");
+                document.getElementById("feedbackCard").classList.add("hidden");
+
+            } catch (err) {
+                console.error(err);
+                showNotice("Error fetching next question.");
+            } finally {
+                nextBtn.disabled = false;
+                nextBtn.innerText = "Next Question";
+            }
+        }
+
+        // Complete session
+        async function finishSession() {
+            const finishBtn = document.getElementById("finishBtn");
+            finishBtn.disabled = true;
+            finishBtn.innerText = "Compiling report...";
+
+            try {
+                const response = await fetch(`/api/interviews/${currentSessionId}/finish`, {
+                    method: "POST",
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!response.ok) {
+                    showNotice("Failed to finish interview report.");
+                    return;
+                }
+
+                const report = await response.json();
+                renderFinalReport(report);
+                loadHistory();
+
+            } catch (err) {
+                console.error(err);
+                showNotice("Error completing session report.");
+            } finally {
+                finishBtn.disabled = false;
+                finishBtn.innerText = "Complete Session";
+            }
+        }
+
+        // Complete early
+        async function finishSessionEarly() {
+            if (confirm("Are you sure you want to finish this mock interview early? Only questions already answered will be graded.")) {
+                try {
+                    const response = await fetch(`/api/interviews/${currentSessionId}/finish`, {
+                        method: "POST",
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+
+                    if (!response.ok) {
+                        const errorMsg = await response.text();
+                        showNotice(JSON.parse(errorMsg).message || "Failed to finish early.");
+                        return;
+                    }
+
+                    const report = await response.json();
+                    renderFinalReport(report);
+                    loadHistory();
+
+                } catch (err) {
+                    console.error(err);
+                    showNotice("Error finishing session early.");
+                }
+            }
+        }
+
+        // Renders final session results
+        function renderFinalReport(report) {
+            document.getElementById("ratingBadge").innerText = report.averageScore.toFixed(1);
+            document.getElementById("reportCategory").innerText = `${report.category} Mock Interview | Completed`;
+            document.getElementById("overallFeedback").innerText = report.overallFeedback;
+
+            const qnaHistory = document.getElementById("qnaHistory");
+            qnaHistory.innerHTML = "";
+
+            report.answers.forEach((ans, i) => {
+                const item = document.createElement("div");
+                item.className = "border border-slate-200 rounded-xl overflow-hidden shadow-sm";
+                item.innerHTML = `
+                    <button onclick="toggleAccordion(${i})" class="w-full text-left px-5 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center hover:bg-slate-100/70 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center">Q${i+1}</span>
+                            <span class="font-semibold text-slate-800 text-sm truncate max-w-md">${ans.questionText}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Score: ${ans.score}/10</span>
+                            <span id="accIcon-${i}" class="text-slate-400 font-bold transition-transform text-xs">▼</span>
+                        </div>
+                    </button>
+                    <div id="accContent-${i}" class="hidden p-5 space-y-3 bg-white border-t border-slate-200/50">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Your Answer:</p>
+                            <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg leading-relaxed">${ans.userAnswer}</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                            <div>
+                                <h4 class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">👍 Strengths:</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">${ans.strengths}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">⚠️ Weaknesses:</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">${ans.weaknesses}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">💡 Missing Points:</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">${ans.missingPoints}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-violet-600 uppercase tracking-wider mb-1">🛠️ Suggestions:</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">${ans.improvementSuggestions}</p>
+                            </div>
+                        </div>
+                        <div class="bg-indigo-50/20 border border-indigo-100/30 p-3.5 rounded-lg mt-3">
+                            <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">🌟 Ideal Answer Summary:</h4>
+                            <p class="text-xs text-indigo-900 leading-relaxed">${ans.idealAnswerSummary}</p>
+                        </div>
+                    </div>
+                `;
+                qnaHistory.appendChild(item);
+            });
+
+            document.getElementById("practiceCard").classList.add("hidden");
+            document.getElementById("feedbackCard").classList.add("hidden");
+            document.getElementById("reportCard").classList.remove("hidden");
+        }
+
+        // Accordion functionality for reports
+        function toggleAccordion(idx) {
+            const content = document.getElementById(`accContent-${idx}`);
+            const icon = document.getElementById(`accIcon-${idx}`);
+            content.classList.toggle("hidden");
+            icon.classList.toggle("rotate-180");
+        }
+
+        // Reset UI setup page
+        function resetSetup() {
+            selectedCategory = "";
+            currentSessionId = null;
+            document.querySelectorAll(".category-btn").forEach(b => {
+                b.classList.remove("border-violet-600", "bg-violet-50/50", "text-violet-700");
+                b.classList.add("border-slate-200", "text-slate-700");
+            });
+
+            document.getElementById("setupCard").classList.remove("hidden");
+            document.getElementById("practiceCard").classList.add("hidden");
+            document.getElementById("feedbackCard").classList.add("hidden");
+            document.getElementById("reportCard").classList.add("hidden");
+        }
+
+        // Load specific report by past session ID
+        async function loadReport(sessionId) {
+            try {
+                const response = await fetch(`/api/interviews/${sessionId}/report`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!response.ok) {
+                    showNotice("Could not load report.");
+                    return;
+                }
+
+                const report = await response.json();
+                renderFinalReport(report);
+                document.getElementById("setupCard").classList.add("hidden");
+
+            } catch (err) {
+                console.error(err);
+                showNotice("Network error fetching report details.");
+            }
+        }
+
+        // Load History list
+        async function loadHistory() {
+            const historyList = document.getElementById("historyList");
+            try {
+                const response = await fetch("/api/interviews/history", {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!response.ok) {
+                    historyList.innerHTML = "<p class='text-center py-4 text-xs'>Failed to load history.</p>";
+                    return;
+                }
+
+                const sessions = await response.json();
+                if (sessions.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="text-center py-8">
+                            <span class="text-3xl">📝</span>
+                            <p class="text-xs text-slate-400 mt-2">No past interviews found. Start your first session above!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                historyList.innerHTML = "";
+                sessions.forEach(sess => {
+                    const date = new Date(sess.completedAt || sess.createdAt).toLocaleDateString(undefined, {
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
+
+                    const item = document.createElement("button");
+                    item.onclick = () => loadReport(sess.id);
+                    item.className = "w-full text-left p-3.5 border border-slate-100 hover:border-violet-300 hover:bg-violet-50/10 rounded-xl transition-all flex justify-between items-center gap-3 shrink-0";
+                    item.innerHTML = `
+                        <div class="truncate">
+                            <h4 class="font-bold text-slate-800 text-xs truncate">${sess.category}</h4>
+                            <span class="text-[10px] text-slate-400 block mt-1">${date}</span>
+                        </div>
+                        <span class="font-extrabold text-xs text-violet-700 bg-violet-50 border border-violet-100 px-2.5 py-1.5 rounded-lg shrink-0">
+                            ${sess.averageScore.toFixed(1)} / 10
+                        </span>
+                    `;
+                    historyList.appendChild(item);
+                });
+
+            } catch (err) {
+                console.error(err);
+                historyList.innerHTML = "<p class='text-center py-4 text-xs text-rose-500'>History network error.</p>";
+            }
+        }
+
+        // Initialize history on load
+        loadHistory();
+    </script>
+
+</body>
+</html>

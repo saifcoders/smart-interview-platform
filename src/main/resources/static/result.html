@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Practice Result - Smart Interview</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        nav {
+            background: #111827;
+            color: white;
+
+            padding: 18px 7%;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .dashboard-btn {
+            background: #374151;
+            color: white;
+
+            border: none;
+
+            padding: 9px 16px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 86%;
+            max-width: 500px;
+
+            margin: 60px auto;
+        }
+
+        .result-card {
+            background: white;
+
+            padding: 40px;
+
+            border-radius: 15px;
+            text-align: center;
+
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 8px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+        }
+
+        .score-circle.pass {
+            border-color: #10b981;
+        }
+
+        .score-circle.fail {
+            border-color: #ef4444;
+        }
+
+        .score-num {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .percentage {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 35px;
+        }
+
+        .percentage.pass {
+            color: #10b981;
+        }
+
+        .percentage.fail {
+            color: #ef4444;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 13px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            display: block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            Smart Interview
+        </div>
+
+        <a href="/dashboard.html" class="dashboard-btn">
+            Dashboard
+        </a>
+
+    </nav>
+
+
+    <div class="container">
+
+        <div class="result-card">
+
+            <div class="emoji" id="emoji">
+                🎉
+            </div>
+
+            <h1 class="title" id="statusTitle">
+                Practice Completed!
+            </h1>
+
+            <p class="status" id="statusMessage">
+                Your performance details have been processed.
+            </p>
+
+
+            <div class="score-circle pass" id="scoreCircle">
+
+                <div class="score-num" id="scoreValue">
+                    0/0
+                </div>
+
+                <div class="score-label">
+                    Score
+                </div>
+
+            </div>
+
+
+            <div class="percentage pass" id="percentageValue">
+                0% Correct
+            </div>
+
+
+            <div class="actions">
+
+                <button class="btn btn-primary" onclick="retryQuiz()">
+                    Retry Practice
+                </button>
+
+                <a href="/dashboard.html" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // Get JWT Token
+        const token = localStorage.getItem("jwtToken");
+
+        if (!token) {
+            window.location.href = "/login.html";
+        }
+
+        // Get result from sessionStorage
+        const resultData = sessionStorage.getItem("lastQuizResult");
+
+        if (!resultData) {
+            // Redirect to dashboard if no result found
+            window.location.href = "/dashboard.html";
+        } else {
+            const result = JSON.parse(resultData);
+            
+            const score = result.score;
+            const totalQuestions = result.totalQuestions;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+            
+            document.getElementById("scoreValue").innerText = `${score}/${totalQuestions}`;
+            document.getElementById("percentageValue").innerText = `${percentage}% Correct`;
+            
+            const isPassing = percentage >= 50;
+            const scoreCircle = document.getElementById("scoreCircle");
+            const percentageValue = document.getElementById("percentageValue");
+            const emoji = document.getElementById("emoji");
+            const statusTitle = document.getElementById("statusTitle");
+            const statusMessage = document.getElementById("statusMessage");
+            
+            if (isPassing) {
+                scoreCircle.className = "score-circle pass";
+                percentageValue.className = "percentage pass";
+                emoji.innerText = "🎉";
+                statusTitle.innerText = "Great Job!";
+                statusMessage.innerText = "Keep up the excellent work to secure your targets.";
+            } else {
+                scoreCircle.className = "score-circle fail";
+                percentageValue.className = "percentage fail";
+                emoji.innerText = "💪";
+                statusTitle.innerText = "Practice Needed";
+                statusMessage.innerText = "Review the concepts and try again to improve your score.";
+            }
+        }
+
+        function retryQuiz() {
+            window.location.href = "/quiz.html";
+        }
+
+    </script>
+
+</body>
+
+</html>

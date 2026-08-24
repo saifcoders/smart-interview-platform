@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Interview Platform</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        nav {
+            height: 70px;
+            background: #111827;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-buttons button {
+            padding: 10px 18px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .login-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid white !important;
+        }
+
+        .register-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .hero {
+            min-height: 500px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 70px 7%;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero-text h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.15;
+        }
+
+        .hero-text h1 span {
+            color: #2563eb;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .start-btn {
+            background: #2563eb;
+            color: white;
+
+            border: none;
+            padding: 14px 28px;
+
+            border-radius: 8px;
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+        .start-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .hero-card {
+            width: 350px;
+            background: white;
+
+            padding: 35px;
+
+            border-radius: 15px;
+
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .hero-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .feature {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .features {
+            padding: 60px 7%;
+            background: white;
+            text-align: center;
+        }
+
+        .features h2 {
+            font-size: 32px;
+            margin-bottom: 40px;
+        }
+
+        .feature-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .feature-box {
+            width: 280px;
+            padding: 30px;
+
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .feature-box h3 {
+            margin-bottom: 12px;
+        }
+
+        .feature-box p {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        footer {
+            background: #111827;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        @media (max-width: 800px) {
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 40px;
+            }
+
+            .hero-text h1 {
+                font-size: 38px;
+            }
+
+            .hero-card {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav>
+
+        <div class="logo">
+            Smart Interview
+        </div>
+
+        <div class="nav-buttons">
+
+            <button class="login-btn" onclick="login()">
+                Login
+            </button>
+
+            <button class="register-btn" onclick="register()">
+                Register
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- Hero Section -->
+
+    <section class="hero">
+
+        <div class="hero-text">
+
+            <h1>
+                Prepare Smarter.
+                <span>Interview Better.</span>
+            </h1>
+
+            <p>
+                Smart Interview Platform helps you prepare for
+                technical interviews through quizzes, questions
+                and instant performance results.
+            </p>
+
+            <button class="start-btn" onclick="startQuiz()">
+                Start Practice
+            </button>
+
+        </div>
+
+
+        <div class="hero-card">
+
+            <h2>
+                Why Smart Interview?
+            </h2>
+
+            <div class="feature">
+                ✓ Technical Interview Questions
+            </div>
+
+            <div class="feature">
+                ✓ Practice Quizzes
+            </div>
+
+            <div class="feature">
+                ✓ Automatic Score Calculation
+            </div>
+
+            <div class="feature">
+                ✓ Performance Results
+            </div>
+
+            <div class="feature">
+                ✓ Secure Login with JWT
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Features -->
+
+    <section class="features">
+
+        <h2>
+            Everything You Need
+        </h2>
+
+        <div class="feature-container">
+
+            <div class="feature-box">
+
+                <h3>
+                    Practice Quizzes
+                </h3>
+
+                <p>
+                    Test your knowledge with technical
+                    interview quizzes.
+                </p>
+
+            </div>
+
+
+            <div class="feature-box">
+
+                <h3>
+                    Instant Results
+                </h3>
+
+                <p>
+                    Get your score immediately after
+                    submitting the quiz.
+                </p>
+
+            </div>
+
+
+            <div class="feature-box">
+
+                <h3>
+                    Track Performance
+                </h3>
+
+                <p>
+                    Review your quiz results and improve
+                    your preparation.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Footer -->
+
+    <footer>
+
+        © 2026 Smart Interview Platform
+
+    </footer>
+
+
+    <script>
+
+        function login() {
+            window.location.href = "/login.html";
+        }
+
+        function register() {
+            window.location.href = "/register.html";
+        }
+
+        function startQuiz() {
+            window.location.href = "/dashboard.html";
+        }
+
+    </script>
+
+</body>
+
+</html>
